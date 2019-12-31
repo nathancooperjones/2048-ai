@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-with open('2048-ai/_version.py') as version_file:
+with open('twentyfortyeight/_version.py') as version_file:
     exec(version_file.read())
 
 with open('README.md') as r:

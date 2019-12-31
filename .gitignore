@@ -1,4 +1,8 @@
 *.ipynb_checkpoints*
 
 # why do Macs do this
-.DS_Store
+*DS_Store*
+
+*__pycache__*
+
+*.egg-info*
