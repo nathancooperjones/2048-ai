@@ -27,9 +27,12 @@ class Game():
         self.probability_of_spawning_4 = probability_of_spawning_4
 
         self.move_made = None
+        self.game_over = False
 
         self.board = np.zeros((size, size)).astype(int)
         self.num_of_board_spaces = self.board.size
+
+        self.reset()
 
     def _add_random_space(self):
         """TODO."""
@@ -41,7 +44,8 @@ class Game():
                 self.board[random.choice(list_of_zeros)] = 2
         else:
             # TODO: raise error of some sort.
-            print('You lose!')
+            # print('You lose!')
+            self.game_over = True
 
     def _recursively_move(self, row, col, direction, combine=False):
         """TODO."""
@@ -166,15 +170,46 @@ class Game():
 
     def _check_if_there_is_a_move_left(self):
         """TODO."""
-        # are there any 0s left?
-        if len(self.board.nonzero()[0]) < self.num_of_board_spaces:
-            return True
-        # if not, can we move any blocks over potentially in the coming moves?
-        for row in range(self.upper_row, self.lower_row + 1):
-            for col in range(self.left_col, self.right_col + 1):
-                if self._can_we_move_this_block(row, col):
-                    return True
-        return False
+        return sum(self._what_directions_can_we_move()) > 0
+
+    def _what_directions_can_we_move(self):
+        directions_we_can_move = list()
+        original_board = self.board.copy()
+
+        for direction in ['w', 'a', 's', 'd']:
+            self.shift(direction)
+            directions_we_can_move.append(not np.array_equal(original_board, self.board))
+            self.board = original_board.copy()
+
+        return directions_we_can_move
+
+    def step(self, actions):
+        """TODO."""
+        assert len(actions) == 4
+
+        # Ignore invalid moves.
+        directions_we_can_move = self._what_directions_can_we_move()
+        viable_actions = [actions[i] for i in range(len(actions)) if directions_we_can_move[i]]
+        direction = ['w', 'a', 's', 'd'][actions.index(max(viable_actions))]
+        # direction = ['w', 'a', 's', 'd'][action.index(1)]
+
+        initial_score = self.score
+        self.shift(direction)
+
+        game_board = self.game_state()
+        reward = self.score - initial_score
+
+        self._add_random_space()
+
+        if not self._check_if_there_is_a_move_left():
+            self.game_over = True
+
+        if self.game_over:
+            reward = -1
+        else:
+            reward += 1
+
+        return game_board, reward, self.game_over
 
     def shift(self, direction):
         """TODO."""

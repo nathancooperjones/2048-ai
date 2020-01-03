@@ -1,4 +1,8 @@
+graphviz
 ipython
+matplotlib
+neat-python==0.9
 numpy
+torch
 
 -e .
